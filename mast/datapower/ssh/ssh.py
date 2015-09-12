@@ -18,7 +18,6 @@ def _check_for_appliance(hostname, appliances):
     return False
 
 
-@logged("mast.datapower.ssh")
 def get_data_file(f):
     _root = os.path.dirname(__file__)
     path = os.path.join(_root, "data", f)
