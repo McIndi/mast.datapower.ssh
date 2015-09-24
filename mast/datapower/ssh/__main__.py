@@ -95,7 +95,7 @@ def display_output(string):
     sys.stdout.flush()
 
 
-def main(appliances=[], credentials=[], domain="default", input_file=None):
+def main(appliances=[], credentials=[], domain="default", input_file=""):
     """Main program loop. Ask user for input, execute the command..."""
     env = Environment(appliances, credentials)
     prompt = initialize_appliances(env, domain)
@@ -115,7 +115,7 @@ def main(appliances=[], credentials=[], domain="default", input_file=None):
                 display_output(output)
                 if ('Goodbye' in prompt) or ('Goodbye' in output):
                     print('Goodbye')
-                    break
+                    sys.exit(0)
     for command in _input:
         output = issue_command(command, env)
         output = format_output(output, env)
