@@ -32,11 +32,12 @@ class Input(object):
         """Adds a command to the queue (the python list) commands"""
         self.commands.append(command)
 
-    def next(self):  # lint:ok
-        """This is provided so that this object can function as an iterator."""
+    def next(self):
+        """This is provided so that this object can function as
+        an iterator."""
         try:
             return self.commands.pop(0)
-        except IndexError:  # lint:ok
+        except IndexError:
             return raw_input(self.prompt)
 
     def __iter__(self):
@@ -49,7 +50,11 @@ def initialize_appliances(env, domain='default'):
     displays the initial output."""
     responses = []
     for appliance in env.appliances:
-        responses.append(appliance.ssh_connect(domain=domain))
+        _resp = appliance.ssh_connect(domain=domain)
+        # Sanitize password from output
+        password = appliance.credentials.split(":")[1]
+        _resp = _resp.replace(password, "*"*8)
+        responses.append(_resp)
     output = format_output(responses, env)
     prompt = output.splitlines()[-1:][0] + ' '
     output = '\n'.join(output.splitlines()[:-1]) + '\n'
