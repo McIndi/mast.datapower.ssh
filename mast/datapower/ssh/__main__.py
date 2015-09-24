@@ -95,12 +95,27 @@ def display_output(string):
     sys.stdout.flush()
 
 
-def main(appliances=[], credentials=[], domain="default"):
+def main(appliances=[], credentials=[], domain="default", input_file=None):
     """Main program loop. Ask user for input, execute the command..."""
     env = Environment(appliances, credentials)
     prompt = initialize_appliances(env, domain)
     global _input
     _input = Input(prompt)
+    if input_file:
+        if not os.path.exists(input_file) and os.path.isfile(input_file):
+            print "input_file must be a file containing cli commands to issue"
+            sys.exit(-1)
+        with open(input_file, "r") as fin:
+            for command in fin:
+                output = issue_command(command, env)
+                output = format_output(output, env)
+                prompt = output.splitlines()[-1:][0] + ' '
+                _input.prompt = prompt
+                output = '\n'.join(output.splitlines()[:-1]) + '\n'
+                display_output(output)
+                if ('Goodbye' in prompt) or ('Goodbye' in output):
+                    print('Goodbye')
+                    break
     for command in _input:
         output = issue_command(command, env)
         output = format_output(output, env)
