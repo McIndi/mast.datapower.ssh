@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 from mast.datapower.datapower import Environment
-from mast.xor import xordecode
-#import argparse
-import mast.cli import Cli
+from mast.cli import Cli
 import sys
 import os
 
@@ -46,23 +44,23 @@ class Input(object):
         return self
 
 
-def initialize_appliances(hostnames, credentials, domain='default'):
+def initialize_appliances(env, domain='default'):
     """This initiates an ssh session, extracts the prompt and
     displays the initial output."""
     responses = []
-    for appliance in appliances:
+    for appliance in env.appliances:
         responses.append(appliance.ssh_connect(domain=domain))
-    output = format_output(responses, appliances)
+    output = format_output(responses, env)
     prompt = output.splitlines()[-1:][0] + ' '
     output = '\n'.join(output.splitlines()[:-1]) + '\n'
     display_output(output)
-    return appliances, prompt
+    return prompt
 
 
-def issue_command(command, appliances, timeout=60):
+def issue_command(command, env, timeout=60):
     """This method issues a command to the DataPower's CLI."""
     responses = []
-    for appliance in appliances:
+    for appliance in env.appliances:
         resp = appliance.ssh_issue_command(command)
         responses.append(resp)
     return responses
@@ -74,7 +72,7 @@ def compare(array):
     return array.count(array[0]) == len(array)
 
 
-def format_output(array, appliances):
+def format_output(array, env):
     """Format the output based on the output of compare(array). If all of
     the appliances responded with the same output, then it will be printed
     only once (This is to make it appear as if you are speaking to one
@@ -84,7 +82,7 @@ def format_output(array, appliances):
     if compare(array):
         return array[0]
     response = ''
-    for index, appliance in enumerate(appliances):
+    for index, appliance in enumerate(env.appliances):
         response += seperator.format(appliance.hostname) + array[index]
     return response + '\n\n> '
 
@@ -100,15 +98,12 @@ def display_output(string):
 def main(appliances=[], credentials=[], domain="default"):
     """Main program loop. Ask user for input, execute the command..."""
     env = Environment(appliances, credentials)
-    appliances, prompt = initialize_appliances(
-        appliances,
-        credentials,
-        domain)
+    prompt = initialize_appliances(env, domain)
     global _input
     _input = Input(prompt)
     for command in _input:
-        output = issue_command(command, appliances)
-        output = format_output(output, appliances)
+        output = issue_command(command, env)
+        output = format_output(output, env)
         prompt = output.splitlines()[-1:][0] + ' '
         _input.prompt = prompt
         output = '\n'.join(output.splitlines()[:-1]) + '\n'
@@ -122,7 +117,7 @@ def main(appliances=[], credentials=[], domain="default"):
 if __name__ == '__main__':
     try:
         cli = Cli(main=main)
-        cli.Run()
+        cli.run()
     except Exception, e:
         # generic try...except just for future use
         raise
