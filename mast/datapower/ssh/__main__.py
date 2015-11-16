@@ -45,12 +45,12 @@ class Input(object):
         return self
 
 
-def initialize_appliances(env, domain='default'):
+def initialize_appliances(env, domain='default', timeout=120):
     """This initiates an ssh session, extracts the prompt and
     displays the initial output."""
     responses = []
     for appliance in env.appliances:
-        _resp = appliance.ssh_connect(domain=domain)
+        _resp = appliance.ssh_connect(domain=domain, timeout=timeout)
         # Sanitize password from output
         password = appliance.credentials.split(":")[1]
         _resp = _resp.replace(password, "*"*8)
@@ -100,10 +100,11 @@ def display_output(string):
     sys.stdout.flush()
 
 
-def main(appliances=[], credentials=[], domain="default", input_file=""):
+def main(appliances=[], credentials=[], domain="default", input_file="",
+         timeout=120):
     """Main program loop. Ask user for input, execute the command..."""
     env = Environment(appliances, credentials)
-    prompt = initialize_appliances(env, domain)
+    prompt = initialize_appliances(env, domain, timeout=timeout)
     global _input
     _input = Input(prompt)
     if input_file:
@@ -112,7 +113,7 @@ def main(appliances=[], credentials=[], domain="default", input_file=""):
             sys.exit(-1)
         with open(input_file, "r") as fin:
             for command in fin:
-                output = issue_command(command, env)
+                output = issue_command(command, env, timeout=timeout)
                 output = format_output(output, env)
                 prompt = output.splitlines()[-1:][0] + ' '
                 _input.prompt = prompt
@@ -122,7 +123,7 @@ def main(appliances=[], credentials=[], domain="default", input_file=""):
                     print('Goodbye')
                     sys.exit(0)
     for command in _input:
-        output = issue_command(command, env)
+        output = issue_command(command, env, timeout=timeout)
         output = format_output(output, env)
         prompt = output.splitlines()[-1:][0] + ' '
         _input.prompt = prompt
