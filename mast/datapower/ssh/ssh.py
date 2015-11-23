@@ -1,8 +1,10 @@
 import os
 import flask
 from mast.logging import logged
+from mast.plugins.web import Plugin
 from mast.datapower import datapower
 from mast.xor import xordecode, xorencode
+
 
 _appliances = {}
 
@@ -24,10 +26,6 @@ def get_data_file(f):
     with open(path, "rb") as fin:
         return fin.read()
 
-
-from mast.plugins.web import Plugin
-import mast.plugin_utils.plugin_functions as pf
-from functools import partial, update_wrapper
 
 class WebPlugin(Plugin):
     def __init__(self):
@@ -88,9 +86,9 @@ class WebPlugin(Plugin):
         for appliance in appliances:
             if not appliance.ssh_is_connected():
                 appliance.ssh_connect()
-            responses[appliance.hostname] = appliance.ssh_issue_command(command)
+            responses[appliance.hostname] = appliance.ssh_issue_command(
+                command)
 
         # Return JSON object containing hostnames (keys) mapped
         # to responses (values)
         return flask.jsonify(responses)
-
