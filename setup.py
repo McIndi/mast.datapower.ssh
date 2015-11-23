@@ -24,13 +24,9 @@ setup(
             'ssh = mast.datapower.ssh:WebPlugin'
         ]
     },
-    data_files=[
-        ("mast/datapower/ssh/data", [
-            "./mast/datapower/ssh/docroot/plugin.js",
-            "./mast/datapower/ssh/docroot/plugin.css",
-            "./mast/datapower/ssh/docroot/plugin.html"
-        ])
-    ],
+    package_data={
+        "mast.datapower.ssh": ["docroot/*"]
+    },
     long_description=read('README.md'),
     classifiers=[
         "Development Status :: 5 - Production/Stable",
