@@ -4,6 +4,9 @@ from mast.cli import Cli
 import sys
 import os
 
+# Fix issue with __main__.py messing up command line help
+sys.argv[0] = "mast-ssh"
+
 try:
     import readline
 except ImportError as e:
