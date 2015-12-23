@@ -103,9 +103,42 @@ def display_output(string):
     sys.stdout.flush()
 
 
-def main(appliances=[], credentials=[], domain="default", input_file="",
+def main(appliances=[],
+         credentials=[],
+         domain="default",
+         input_file="",
          timeout=120):
-    """Main program loop. Ask user for input, execute the command..."""
+    """A multi-box ssh client, designed specifically for IBM DataPower
+appliances.
+
+__IMPORTANT__: This will not work for other types of machines, this is
+because since the DataPower doesn't follow the SSH spec exactly,
+special care was taken so we would properly handle their implementation.
+The steps which were taken to achieve this handling prevent it from
+being reliably used for other machine types
+
+Parameters:
+
+* `-a, --appliances`: The hostname(s), ip addresse(s), environment name(s)
+or alias(es) of the appliances you would like to affect. For details
+on configuring environments please see the comments in
+`environments.conf` located in `$MAST_HOME/etc/default`. For details
+on configuring aliases please see the comments in `hosts.conf` located
+in `$MAST_HOME/etc/default`.
+* `-c, --credentials`: The credentials to use for authenticating to the
+appliances. Should be either one set to use for all appliances
+or one set for each appliance. Credentials should be in the form
+`username:password` and should be provided in a space-seperated list
+if multiple are provided. If you would prefer to not use plain-text
+passwords, you can use the output of `$ mast-system xor <username:password>`.
+* `-d, --domain`: The domain to log into
+* `-i, --input-file`: If provided, it should point to a text file which
+contains cli commands (one-per-line) which will be executed in order on
+each appliance
+* `-t, --timeout`: The timeout in seconds to wait for a response from
+an appliance for any single request. __NOTE__ Program execution may
+halt if a timeout is reached.
+"""
     env = Environment(appliances, credentials)
     prompt = initialize_appliances(env, domain, timeout=timeout)
     global _input
@@ -140,7 +173,7 @@ def main(appliances=[], credentials=[], domain="default", input_file="",
 
 if __name__ == '__main__':
     try:
-        cli = Cli(main=main)
+        cli = Cli(main=main, description=main.__doc__)
         cli.run()
     except Exception, e:
         # generic try...except just for future use
