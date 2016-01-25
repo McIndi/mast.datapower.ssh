@@ -163,7 +163,7 @@ halt if a timeout is reached.
         output = format_output(output, env)
         prompt = output.splitlines()[-1:][0] + ' '
         _input.prompt = prompt
-        # output = '\n'.join(output.splitlines()[:-1]) + '\n'
+        output = '\n'.join(output.splitlines()[:-1]) + '\n'
         display_output(output)
         if ('Goodbye' in prompt) or ('Goodbye' in output):
             print('Goodbye')
