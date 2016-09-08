@@ -107,7 +107,8 @@ def main(appliances=[],
          credentials=[],
          domain="default",
          input_file="",
-         timeout=120):
+         timeout=120,
+         port=22):
     """A multi-box ssh client, designed specifically for IBM DataPower
 appliances.
 
@@ -140,6 +141,11 @@ an appliance for any single request. __NOTE__ Program execution may
 halt if a timeout is reached.
 """
     env = Environment(appliances, credentials)
+    # TODO: Real fix is to allow Environment to accept arbitrary
+    #       kwargs which will be passed to the DataPower constructor
+    #       but for now...
+    for appl in env.appliances:
+        appl.ssh_port = port
     prompt = initialize_appliances(env, domain, timeout=timeout)
     global _input
     _input = Input(prompt)
